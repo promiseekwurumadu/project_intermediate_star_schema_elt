@@ -17,15 +17,26 @@ def load_fact(chunk_size: int = 50000) -> None:
     dim_product = pd.read_sql("SELECT product_key, stockcode, description FROM analytics.dim_product", engine)
     dim_country = pd.read_sql("SELECT country_key, country FROM analytics.dim_country", engine)
 
+    
+    
     # Merge to get foreign keys
     df = df.merge(dim_customer, left_on="customerid", right_on="customer_id", how="left")
     df = df.merge(dim_country, left_on="country", right_on="country", how="left")
+    df["stockcode"] = df["stockcode"].astype(str).str.strip()
+    df["description"] = df["description"].fillna("").astype(str).str.strip()
     df = df.merge(dim_product, on=["stockcode", "description"], how="left")
 
     # Sanity check: keys must exist
     missing = df[["customer_key", "country_key", "product_key"]].isna().sum()
+    print("Missing key counts:\n", missing)
+
     if missing.any():
-        raise ValueError(f"Missing dimension keys found:\n{missing}")
+    # show a few problematic rows to diagnose
+        bad = df[df["customer_key"].isna() | df["country_key"].isna() | df["product_key"].isna()][ ["customerid", "country", "stockcode", "description"]
+            ].head(10)
+        print("Example unmatched rows:\n", bad)
+        raise ValueError("Missing dimension keys found (see counts above).")
+
 
     fact = df[[
         "invoiceno",
