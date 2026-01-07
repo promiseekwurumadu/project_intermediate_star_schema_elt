@@ -20,6 +20,10 @@ def extract_and_clean() -> pd.DataFrame:
         .str.lower()
         .str.replace(" ", "_")
     )
+    df["stockcode"] = df["stockcode"].astype(str).str.strip()
+    df["description"] = df["description"].fillna("").astype(str).str.strip()
+    df["country"] = df["country"].astype(str).str.strip()
+
 
     return df
 
