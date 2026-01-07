@@ -1,6 +1,6 @@
 import pandas as pd
 
-RAW_XLSX_PATH = "data/Online Retail.xlsx"
+RAW_XLSX_PATH = "data/Online_Retail.xlsx"
 
 
 def extract_and_clean() -> pd.DataFrame:
